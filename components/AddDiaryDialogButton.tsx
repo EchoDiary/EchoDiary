@@ -10,14 +10,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import Image from 'next/image';
-import { FaMicrophone } from 'react-icons/fa6';
+import { FaMicrophone, FaRegPenToSquare } from 'react-icons/fa6';
 import { IoSparkles } from 'react-icons/io5';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
 import { Visualizer } from 'react-sound-visualizer';
 import { useRef, useState } from 'react';
-import { IoAddOutline } from 'react-icons/io5';
 import useMediaStream from 'use-media-stream';
 
 import { generateClient } from 'aws-amplify/data';
@@ -140,7 +139,7 @@ const AddDiaryDialogButton = () => {
       >
         <Button className='flex flex-row gap-2 items-center'>
           {' '}
-          <IoAddOutline />
+          <FaRegPenToSquare />
           <span>New Journal</span>
         </Button>
       </DialogTrigger>
