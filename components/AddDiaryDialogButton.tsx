@@ -16,7 +16,8 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
 import { Visualizer } from 'react-sound-visualizer';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { IoAddOutline } from 'react-icons/io5';
 import useMediaStream from 'use-media-stream';
 
 import { generateClient } from 'aws-amplify/data';
@@ -98,11 +99,6 @@ const AddDiaryDialogButton = () => {
 
   async function handleSave() {
     try {
-      // const { data: newTodo } = await client.models.Diary.create({
-      //   content: content,
-      //   date: new Date().toISOString(),
-      // });
-
       toast
         .promise(
           client.models.Diary.create({
@@ -142,7 +138,11 @@ const AddDiaryDialogButton = () => {
           setIsOpen(true);
         }}
       >
-        <Button>New Diary</Button>
+        <Button className='flex flex-row gap-2 items-center'>
+          {' '}
+          <IoAddOutline />
+          <span>New Journal</span>
+        </Button>
       </DialogTrigger>
       <DialogContent className=''>
         <DialogHeader>
@@ -188,9 +188,12 @@ const AddDiaryDialogButton = () => {
                       )}
                     </Visualizer>
                   ) : (
-                    <p className='text-sm text-accent-foreground max-w-xs'>
-                      Start speaking to our AI and share your thoughts by
-                      clicking on avatar.
+                    <p className='text-sm whitespace-normal text-accent-foreground max-w-xs'>
+                      Start speaking to{' '}
+                      <span className='font-bold italic'>
+                        <span>echo &#10024;</span>
+                      </span>{' '}
+                      and share your thoughts by clicking the button below.
                     </p>
                   )}
                 </div>
