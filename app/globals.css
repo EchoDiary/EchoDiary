@@ -3,57 +3,55 @@
 @tailwind utilities;
 
 :root {
-  --max-width: 1100px;
-  --border-radius: 12px;
-  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
-    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
-    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
-
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: #cbbeff;
-  --background-end-rgb: 255, 255, 255;
-
-  --callout-rgb: 238, 240, 241;
-  --callout-border-rgb: 172, 175, 176;
-  --card-rgb: #6649ae;
-  --card-border-rgb: 131, 134, 135;
-
-  --amplify-components-heading-color: #bdc3d2 !important;
+  --background: 49 93% 96%;
+  --foreground: 49 5% 10%;
+  --card: 49 50% 96%;
+  --card-foreground: 49 5% 15%;
+  --popover: 49 93% 96%;
+  --popover-foreground: 49 95% 10%;
+  --primary: 49 100% 73.3%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 49 30% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 11 30% 95%;
+  --muted-foreground: 49 5% 40%;
+  --accent: 11 30% 90%;
+  --accent-foreground: 49 5% 15%;
+  --destructive: 0 93% 50%;
+  --destructive-foreground: 49 5% 96%;
+  --border: 49 30% 82%;
+  --input: 49 30% 50%;
+  --ring: 49 100% 73.3%;
+  --radius: 0.75rem;
+}
+.dark {
+  --background: 49 15% 6%;
+  --foreground: 49 5% 90%;
+  --card: 49 15% 6%;
+  --card-foreground: 49 5% 90%;
+  --popover: 49 15% 5%;
+  --popover-foreground: 49 5% 90%;
+  --primary: 49 100% 73.3%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 49 15% 10%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 11 15% 15%;
+  --muted-foreground: 49 5% 60%;
+  --accent: 11 15% 15%;
+  --accent-foreground: 49 5% 90%;
+  --destructive: 0 50% 30%;
+  --destructive-foreground: 49 5% 90%;
+  --border: 49 20% 18%;
+  --input: 49 20% 18%;
+  --ring: 49 100% 73.3%;
+  --radius: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
+@layer base {
+  * {
+    @apply border-border;
   }
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  body {
+    @apply bg-background text-foreground;
   }
-}
-
-body {
-  margin: 0;
-  background: #f3f4f6;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  color: black;
 }
