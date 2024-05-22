@@ -19,6 +19,12 @@ import { Visualizer } from 'react-sound-visualizer';
 import { useEffect, useRef, useState } from 'react';
 import useMediaStream from 'use-media-stream';
 
+import { generateClient } from 'aws-amplify/data';
+import { type Schema } from '../amplify/data/resource';
+import toast from 'react-hot-toast';
+
+const client = generateClient<Schema>();
+
 const AddDiaryDialogButton = () => {
   const [transcription, setTranscription] = useState('');
 
@@ -36,6 +42,7 @@ const AddDiaryDialogButton = () => {
   const [isActive, setIsActive] = useState(false);
   const [content, setContent] = useState('');
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useState(() => {
     if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
@@ -88,9 +95,53 @@ const AddDiaryDialogButton = () => {
     stopStream();
     setIsActive(false);
   }
+
+  async function handleSave() {
+    try {
+      // const { data: newTodo } = await client.models.Diary.create({
+      //   content: content,
+      //   date: new Date().toISOString(),
+      // });
+
+      toast
+        .promise(
+          client.models.Diary.create({
+            content: content,
+            date: new Date().toISOString(),
+          }),
+          {
+            loading: 'Saving diary entry...',
+            success: 'Diary entry saved successfully',
+            error: 'Error saving diary entry',
+          }
+        )
+        .then(() => {
+          setContent('');
+          setIsOpen(false);
+        })
+        .finally(() => {
+          setContent('');
+        });
+    } catch (error) {
+      toast.error('Error saving diary entry');
+      console.error('Error saving diary entry', error);
+    }
+  }
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setContent('');
+        }
+        setIsOpen(isOpen);
+      }}
+    >
+      <DialogTrigger
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
         <Button>New Diary</Button>
       </DialogTrigger>
       <DialogContent className=''>
@@ -176,7 +227,9 @@ const AddDiaryDialogButton = () => {
             <span>Optimize with AI</span>
             <IoSparkles className='text-primary' />
           </Button>
-          <Button className='w-full'>Save</Button>
+          <Button onClick={handleSave} className='w-full'>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
