@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.9",
+    "@aws-amplify/ui-react": "^6.1.11",
     "aws-amplify": "^6.2.0",
     "next": "13.5.4",
     "react": "^18",
@@ -21,6 +21,9 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.3.2"
   }
 }
