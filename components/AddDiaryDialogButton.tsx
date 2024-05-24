@@ -1,5 +1,20 @@
 "use client";
 
+import { useRef, useState } from "react";
+import "@aws-amplify/ui-react/styles.css";
+import useMediaStream from "use-media-stream";
+import { Visualizer } from "react-sound-visualizer";
+import Image from "next/image";
+import { FaMicrophone, FaRegPenToSquare } from "react-icons/fa6";
+import { TiDeleteOutline } from "react-icons/ti";
+import { IoSparkles } from "react-icons/io5";
+import { TbReload } from "react-icons/tb";
+import { StorageManager } from "@aws-amplify/ui-react-storage";
+import { Divider, Loader } from "@aws-amplify/ui-react";
+import { generateClient } from "aws-amplify/data";
+import { type Schema } from "../amplify/data/resource";
+import toast from "react-hot-toast";
+
 import {
   Dialog,
   DialogContent,
@@ -9,20 +24,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Image from "next/image";
-import { FaMicrophone, FaRegPenToSquare } from "react-icons/fa6";
-import { IoSparkles } from "react-icons/io5";
-import { TbReload } from "react-icons/tb";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-import { Visualizer } from "react-sound-visualizer";
-import { useRef, useState } from "react";
-import useMediaStream from "use-media-stream";
-
-import { generateClient } from "aws-amplify/data";
-import { type Schema } from "../amplify/data/resource";
-import toast from "react-hot-toast";
 
 const client = generateClient<Schema>();
 
@@ -172,12 +176,11 @@ const AddDiaryDialogButton = () => {
         }}
       >
         <Button className="flex flex-row gap-2 items-center">
-          {" "}
           <FaRegPenToSquare />
           <span>New Journal</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="">
+      <DialogContent className="max-h-[560px] h-full overflow-auto">
         <DialogHeader>
           <DialogTitle>
             <h1 className="text-2xl font-bold">Add a new diary entry</h1>
@@ -252,6 +255,87 @@ const AddDiaryDialogButton = () => {
               className="placeholder:text-secondary-foreground/20"
               value={content}
               onChange={(e) => setContent(e.target.value)}
+            />
+          </div>
+          <div className="grid w-full gap-3 my-2">
+            <Label>Attach images</Label>
+            <StorageManager
+              acceptedFileTypes={["image/*"]}
+              path={({ identityId }) => `protected/${identityId}/`}
+              isResumable
+              maxFileCount={5}
+              components={{
+                Container({ children }) {
+                  return (
+                    <div className="w-full rounded-[12px] border border-[#a69859] p-3">
+                      {children}
+                    </div>
+                  );
+                },
+                DropZone({ children, displayText, inDropZone, ...rest }) {
+                  return (
+                    <div className="flex flex-col gap-4 justify-center items-center w-full">
+                      <p>Drop files here</p>
+                      <Divider size="small" label="or" maxWidth="10rem" />
+                      {children}
+                    </div>
+                  );
+                },
+                FilePicker({ onClick }) {
+                  return (
+                    <Button
+                      onClick={onClick}
+                      className="text-md font-light rounded-sm"
+                    >
+                      Browse Files
+                    </Button>
+                  );
+                },
+                FileList({ files, onCancelUpload, onDeleteUpload }) {
+                  return (
+                    <div className="flex gap-4 w-full flex-wrap mt-3">
+                      {files.map(
+                        ({ file, key, progress, id, status, uploadTask }) => (
+                          <div
+                            className="flex flex-col items-center justify-center relative w-20 h-20 object-cover"
+                            key={key}
+                          >
+                            <Image
+                              width={80}
+                              height={80}
+                              src={URL.createObjectURL(file)}
+                              alt={key}
+                              className="object-cover"
+                            />
+                            {progress < 100 ? (
+                              <Loader
+                                position="absolute"
+                                size="large"
+                                percentage={progress}
+                                isDeterminate
+                                isPercentageTextHidden
+                              />
+                            ) : null}
+
+                            <Button
+                              className="opacity-70 hover:opacity-100 rounded-full absolute bg-transparent hover:bg-transparent transition-all duration-200"
+                              onClick={() => {
+                                if (status === "uploading") {
+                                  onCancelUpload({ id, uploadTask });
+                                } else {
+                                  onDeleteUpload({ id });
+                                }
+                              }}
+                            >
+                              <TiDeleteOutline className="w-[26px] h-[26px] text-red-700" />
+                            </Button>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  );
+                },
+              }}
             />
           </div>
         </div>
