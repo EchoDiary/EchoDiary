@@ -14,6 +14,7 @@ import { Divider, Loader } from "@aws-amplify/ui-react";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "../amplify/data/resource";
 import toast from "react-hot-toast";
+import { Predictions } from "@aws-amplify/predictions";
 
 import {
   Dialog,
@@ -49,6 +50,8 @@ const AddDiaryDialogButton = () => {
   const [isSpeechSupported, setIsSpeechSupported] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isOptimising, setIsOptimising] = useState(false);
+  const [sentiment, setSentiment] = useState("");
+  const [images, setImages] = useState([] as string[]);
 
   useState(() => {
     if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
@@ -108,6 +111,7 @@ const AddDiaryDialogButton = () => {
         .promise(
           client.models.Diary.create({
             content: content,
+            images: images,
             date: new Date().toISOString(),
           }),
           {
@@ -152,6 +156,17 @@ const AddDiaryDialogButton = () => {
 
       const data = await response.json();
       setContent(data.choices[0].message.content);
+
+      const interpretions = await Predictions.interpret({
+        text: {
+          source: {
+            text: "My day starts early when my alarm rings, pulling me out of bed for a quick breakfast before I hurry to catch the school bus. Once I get to school, the day kicks off with the morning assembly where we say our prayers, sing the national anthem, and listen to the teachers' announcements. Then, it’s off to the first class of the day. We go through subjects like math, science, languages, and social studies. Mid-morning, we get a short recess, and I love this time because I can chat with my friends and grab a snack. After recess, we head back to more classes, and sometimes we get to do fun activities or have a physical education period. Lunchtime is one of my favorite parts of the day. I sit with my friends, and we share our meals and stories. In the afternoon, we have a few more classes and sometimes extracurricular activities like music, art, or sports. When school ends, I take the bus back home, where I have to finish my homework and get ready for the next day. In the evening, I usually get some time to play before dinner with my family. It’s a busy day, but it’s always fun and interesting.",
+            language: "en-US",
+          },
+          type: "sentiment",
+        },
+      });
+      console.log(interpretions);
     } catch (error) {
       console.error("Error while optimizing text:", error);
       toast.error("Failed to optimize text. Please try again later.");
@@ -174,6 +189,7 @@ const AddDiaryDialogButton = () => {
         onClick={() => {
           setIsOpen(true);
         }}
+        asChild
       >
         <Button className="flex flex-row gap-2 items-center">
           <FaRegPenToSquare />
@@ -258,12 +274,15 @@ const AddDiaryDialogButton = () => {
             />
           </div>
           <div className="grid w-full gap-3 my-2">
-            <Label>Attach images</Label>
+            <Label>Attach images{sentiment}</Label>
             <StorageManager
               acceptedFileTypes={["image/*"]}
-              path={({ identityId }) => `protected/${identityId}/`}
+              path={({ identityId }) => `diary-images/${identityId}/`}
               isResumable
               maxFileCount={5}
+              onUploadSuccess={(data) =>
+                setImages((prev) => [...prev, data.key || ""])
+              }
               components={{
                 Container({ children }) {
                   return (
@@ -300,13 +319,15 @@ const AddDiaryDialogButton = () => {
                             className="flex flex-col items-center justify-center relative w-20 h-20 object-cover"
                             key={key}
                           >
-                            <Image
-                              width={80}
-                              height={80}
-                              src={URL.createObjectURL(file)}
-                              alt={key}
-                              className="object-cover"
-                            />
+                            {file && (
+                              <Image
+                                width={80}
+                                height={80}
+                                src={URL.createObjectURL(file)}
+                                alt={key}
+                                className="object-cover"
+                              />
+                            )}
                             {progress < 100 ? (
                               <Loader
                                 position="absolute"
@@ -321,7 +342,10 @@ const AddDiaryDialogButton = () => {
                               className="opacity-70 hover:opacity-100 rounded-full absolute bg-transparent hover:bg-transparent transition-all duration-200"
                               onClick={() => {
                                 if (status === "uploading") {
-                                  onCancelUpload({ id, uploadTask });
+                                  onCancelUpload({
+                                    id,
+                                    uploadTask: uploadTask!,
+                                  });
                                 } else {
                                   onDeleteUpload({ id });
                                 }
