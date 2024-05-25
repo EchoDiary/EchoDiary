@@ -10,6 +10,7 @@ import Dashboard from "@/components/Dashboard";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "@/amplify/data/resource";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 Amplify.configure(outputs);
 
@@ -38,8 +39,18 @@ export default function App() {
     listDiaries();
   }, []);
 
+  const components = {
+    Header() {
+      return (
+        <div className="flex justify-center items-center pb-2">
+          <Image src="/images/logo.png" width={300} height={300} alt="logo" />
+        </div>
+      );
+    },
+  };
+
   return (
-    <Authenticator>
+    <Authenticator components={components}>
       {({ signOut, user }) => (
         <Dashboard signOut={signOut as any} diaries={diaries as any} />
       )}
