@@ -9,9 +9,10 @@ specifies that any user authenticated via an API key can "create", "read",
 const schema = a.schema({
   Diary: a
     .model({
+      id: a.string(),
       content: a.string(),
+      createdAt: a.string(),
       images: a.string().array(),
-      date: a.datetime(),
       mood: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
@@ -19,7 +20,9 @@ const schema = a.schema({
 
 export type Schema = ClientSchema<typeof schema>;
 
+
 export const data = defineData({
+  name: "mainData",
   schema,
   authorizationModes: {
     defaultAuthorizationMode: "userPool",
@@ -27,6 +30,7 @@ export const data = defineData({
       expiresInDays: 30,
     },
   },
+
 });
 
 /*== STEP 2 ===============================================================
@@ -43,6 +47,7 @@ cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
 "use client"
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
+import { type Schema } from '@/amplify/data/resource';
 
 const client = generateClient<Schema>() // use this Data client for CRUDL requests
 */

@@ -35,6 +35,7 @@ import {
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { analyseMood } from "@/lib/utils";
 
 const client = generateClient<Schema>();
 
@@ -58,6 +59,7 @@ const AddDiaryDialogButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOptimising, setIsOptimising] = useState(false);
   const [sentiment, setSentiment] = useState("");
+  const [mood, setMood] = useState("");
   const [images, setImages] = useState([] as string[]);
 
   useState(() => {
@@ -112,14 +114,50 @@ const AddDiaryDialogButton = () => {
     setIsActive(false);
   }
 
+  async function handleSentimentAnalysis() {
+    try {
+      const response = await Predictions.interpret({
+        text: {
+          source: {
+            text: content,
+            language: "en",
+          },
+          type: "sentiment",
+        },
+      });
+      if (response.textInterpretation.sentiment) {
+        console.log(response.textInterpretation.sentiment);
+        setSentiment(response.textInterpretation.sentiment.predominant);
+        const interpretedMood = analyseMood(
+          response.textInterpretation.sentiment
+        );
+        return interpretedMood;
+      }
+    } catch (error) {
+      console.error("Error while analysing sentiment:", error);
+      return;
+    }
+  }
+
+  // Make a promise that does sentiment analysis and then saves the diary entry below
+
   async function handleSave() {
     try {
       toast
         .promise(
-          client.models.Diary.create({
-            content: content,
-            images: images,
-            date: new Date().toISOString(),
+          new Promise(async (resolve, reject) => {
+            const mood = await handleSentimentAnalysis();
+            await client.models.Diary.create({
+              content: content,
+              images: images,
+              mood: mood,
+            })
+              .then(() => {
+                resolve("Diary entry saved successfully");
+              })
+              .catch((error) => {
+                reject("Error saving diary entry");
+              });
           }),
           {
             loading: "Saving diary entry...",
@@ -160,20 +198,8 @@ const AddDiaryDialogButton = () => {
       if (!response.ok) {
         throw new Error("Failed to optimize text");
       }
-
       const data = await response.json();
       setContent(data.choices[0].message.content);
-
-      const interpretions = await Predictions.interpret({
-        text: {
-          source: {
-            text: "My day starts early when my alarm rings, pulling me out of bed for a quick breakfast before I hurry to catch the school bus. Once I get to school, the day kicks off with the morning assembly where we say our prayers, sing the national anthem, and listen to the teachers' announcements. Then, it’s off to the first class of the day. We go through subjects like math, science, languages, and social studies. Mid-morning, we get a short recess, and I love this time because I can chat with my friends and grab a snack. After recess, we head back to more classes, and sometimes we get to do fun activities or have a physical education period. Lunchtime is one of my favorite parts of the day. I sit with my friends, and we share our meals and stories. In the afternoon, we have a few more classes and sometimes extracurricular activities like music, art, or sports. When school ends, I take the bus back home, where I have to finish my homework and get ready for the next day. In the evening, I usually get some time to play before dinner with my family. It’s a busy day, but it’s always fun and interesting.",
-            language: "en",
-          },
-          type: "sentiment",
-        },
-      });
-      console.log(interpretions);
     } catch (error) {
       console.error("Error while optimizing text:", error);
       toast.error("Failed to optimize text. Please try again later.");
@@ -188,6 +214,10 @@ const AddDiaryDialogButton = () => {
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           setContent("");
+          setImages([]);
+          setSentiment("");
+          setMood("");
+          setTranscription("");
         }
         setIsOpen(isOpen);
       }}
@@ -200,7 +230,7 @@ const AddDiaryDialogButton = () => {
       >
         <Button className="flex flex-row gap-2 items-center">
           <FaRegPenToSquare />
-          <span>New Journal</span>
+          <span className="hidden md:block">New Journal</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="h-full max-h-[90%] gap-0 overflow-auto">
@@ -221,7 +251,7 @@ const AddDiaryDialogButton = () => {
           ) : (
             <>
               <div className="flex flex-row gap-4 items-start w-full">
-                <div className="w-24 h-24 aspect-square mt-4 rounded-full animate-bounce hover:animate-none relative overflow-hidden group">
+                <div className="w-24 h-24 aspect-square flex-shrink-0 mt-4 rounded-full animate-bounce hover:animate-none relative overflow-hidden group">
                   <Image
                     src="/images/ai-avatar.png"
                     fill={true}
@@ -383,10 +413,10 @@ const AddDiaryDialogButton = () => {
             </AccordionItem>
           </Accordion>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col md:flex-row items-center w-full justify-center gap-4">
           {!isOptimising ? (
             <Button
-              className="flex flex-row gap-2 items-center"
+              className="flex flex-row gap-2 items-center w-full md:w-fit"
               variant="outline"
               onClick={handleOptimise}
             >
@@ -403,7 +433,12 @@ const AddDiaryDialogButton = () => {
               <TbReload className="w-5 h-5 text-primary animate-spin" />
             </Button>
           )}
-          <Button onClick={handleSave} className="w-full">
+          <Button
+            onClick={() => {
+              handleSave();
+            }}
+            className="w-full"
+          >
             Save
           </Button>
         </DialogFooter>
