@@ -17,6 +17,13 @@ import toast from "react-hot-toast";
 import { Predictions } from "@aws-amplify/predictions";
 
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -28,6 +35,7 @@ import {
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { analyseMood } from "@/lib/utils";
 
 const client = generateClient<Schema>();
 
@@ -51,6 +59,7 @@ const AddDiaryDialogButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isOptimising, setIsOptimising] = useState(false);
   const [sentiment, setSentiment] = useState("");
+  const [mood, setMood] = useState("");
   const [images, setImages] = useState([] as string[]);
 
   useState(() => {
@@ -105,14 +114,50 @@ const AddDiaryDialogButton = () => {
     setIsActive(false);
   }
 
+  async function handleSentimentAnalysis() {
+    try {
+      const response = await Predictions.interpret({
+        text: {
+          source: {
+            text: content,
+            language: "en",
+          },
+          type: "sentiment",
+        },
+      });
+      if (response.textInterpretation.sentiment) {
+        console.log(response.textInterpretation.sentiment);
+        setSentiment(response.textInterpretation.sentiment.predominant);
+        const interpretedMood = analyseMood(
+          response.textInterpretation.sentiment
+        );
+        return interpretedMood;
+      }
+    } catch (error) {
+      console.error("Error while analysing sentiment:", error);
+      return;
+    }
+  }
+
+  // Make a promise that does sentiment analysis and then saves the diary entry below
+
   async function handleSave() {
     try {
       toast
         .promise(
-          client.models.Diary.create({
-            content: content,
-            images: images,
-            date: new Date().toISOString(),
+          new Promise(async (resolve, reject) => {
+            const mood = await handleSentimentAnalysis();
+            await client.models.Diary.create({
+              content: content,
+              images: images,
+              mood: mood,
+            })
+              .then(() => {
+                resolve("Diary entry saved successfully");
+              })
+              .catch((error) => {
+                reject("Error saving diary entry");
+              });
           }),
           {
             loading: "Saving diary entry...",
@@ -153,20 +198,8 @@ const AddDiaryDialogButton = () => {
       if (!response.ok) {
         throw new Error("Failed to optimize text");
       }
-
       const data = await response.json();
       setContent(data.choices[0].message.content);
-
-      const interpretions = await Predictions.interpret({
-        text: {
-          source: {
-            text: "My day starts early when my alarm rings, pulling me out of bed for a quick breakfast before I hurry to catch the school bus. Once I get to school, the day kicks off with the morning assembly where we say our prayers, sing the national anthem, and listen to the teachers' announcements. Then, it’s off to the first class of the day. We go through subjects like math, science, languages, and social studies. Mid-morning, we get a short recess, and I love this time because I can chat with my friends and grab a snack. After recess, we head back to more classes, and sometimes we get to do fun activities or have a physical education period. Lunchtime is one of my favorite parts of the day. I sit with my friends, and we share our meals and stories. In the afternoon, we have a few more classes and sometimes extracurricular activities like music, art, or sports. When school ends, I take the bus back home, where I have to finish my homework and get ready for the next day. In the evening, I usually get some time to play before dinner with my family. It’s a busy day, but it’s always fun and interesting.",
-            language: "en-US",
-          },
-          type: "sentiment",
-        },
-      });
-      console.log(interpretions);
     } catch (error) {
       console.error("Error while optimizing text:", error);
       toast.error("Failed to optimize text. Please try again later.");
@@ -181,6 +214,10 @@ const AddDiaryDialogButton = () => {
       onOpenChange={(isOpen) => {
         if (!isOpen) {
           setContent("");
+          setImages([]);
+          setSentiment("");
+          setMood("");
+          setTranscription("");
         }
         setIsOpen(isOpen);
       }}
@@ -193,12 +230,12 @@ const AddDiaryDialogButton = () => {
       >
         <Button className="flex flex-row gap-2 items-center">
           <FaRegPenToSquare />
-          <span>New Journal</span>
+          <span className="hidden md:block">New Journal</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[560px] h-full overflow-auto">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent className="h-full max-h-[90%] gap-0 overflow-auto">
+        <DialogHeader className="space-y-0">
+          <DialogTitle className="space-y-0">
             <h1 className="text-2xl font-bold">Add a new diary entry</h1>
           </DialogTitle>
         </DialogHeader>
@@ -214,7 +251,7 @@ const AddDiaryDialogButton = () => {
           ) : (
             <>
               <div className="flex flex-row gap-4 items-start w-full">
-                <div className="w-24 h-24 aspect-square mt-4 rounded-full animate-bounce hover:animate-none relative overflow-hidden group">
+                <div className="w-24 h-24 aspect-square flex-shrink-0 mt-4 rounded-full animate-bounce hover:animate-none relative overflow-hidden group">
                   <Image
                     src="/images/ai-avatar.png"
                     fill={true}
@@ -273,104 +310,117 @@ const AddDiaryDialogButton = () => {
               onChange={(e) => setContent(e.target.value)}
             />
           </div>
-          <div className="grid w-full gap-3 my-2">
-            <Label>Attach images{sentiment}</Label>
-            <StorageManager
-              acceptedFileTypes={["image/*"]}
-              path={({ identityId }) => `diary-images/${identityId}/`}
-              isResumable
-              maxFileCount={5}
-              onUploadSuccess={(data) =>
-                setImages((prev) => [...prev, data.key || ""])
-              }
-              components={{
-                Container({ children }) {
-                  return (
-                    <div className="w-full rounded-[12px] border border-[#a69859] p-3">
-                      {children}
-                    </div>
-                  );
-                },
-                DropZone({ children, displayText, inDropZone, ...rest }) {
-                  return (
-                    <div className="flex flex-col gap-4 justify-center items-center w-full">
-                      <p>Drop files here</p>
-                      <Divider size="small" label="or" maxWidth="10rem" />
-                      {children}
-                    </div>
-                  );
-                },
-                FilePicker({ onClick }) {
-                  return (
-                    <Button
-                      onClick={onClick}
-                      className="text-md font-light rounded-sm"
-                    >
-                      Browse Files
-                    </Button>
-                  );
-                },
-                FileList({ files, onCancelUpload, onDeleteUpload }) {
-                  return (
-                    <div className="flex gap-4 w-full flex-wrap mt-3">
-                      {files.map(
-                        ({ file, key, progress, id, status, uploadTask }) => (
-                          <div
-                            className="flex flex-col items-center justify-center relative w-20 h-20 object-cover"
-                            key={key}
-                          >
-                            {file && (
-                              <Image
-                                width={80}
-                                height={80}
-                                src={URL.createObjectURL(file)}
-                                alt={key}
-                                className="object-cover"
-                              />
-                            )}
-                            {progress < 100 ? (
-                              <Loader
-                                position="absolute"
-                                size="large"
-                                percentage={progress}
-                                isDeterminate
-                                isPercentageTextHidden
-                              />
-                            ) : null}
-
-                            <Button
-                              className="opacity-70 hover:opacity-100 rounded-full absolute bg-transparent hover:bg-transparent transition-all duration-200"
-                              onClick={() => {
-                                if (status === "uploading") {
-                                  onCancelUpload({
-                                    id,
-                                    uploadTask: uploadTask!,
-                                  });
-                                } else {
-                                  onDeleteUpload({ id });
-                                }
-                              }}
-                            >
-                              <TiDeleteOutline className="w-[26px] h-[26px] text-red-700" />
-                            </Button>
+          <Accordion className="w-full" type="single" collapsible>
+            <AccordionItem className="w-full" value="item-1">
+              <AccordionTrigger>Attach Images</AccordionTrigger>
+              <AccordionContent className="w-full">
+                <div className="grid w-full gap-3 my-2">
+                  <StorageManager
+                    acceptedFileTypes={["image/*"]}
+                    path={({ identityId }) => `diary-images/${identityId}/`}
+                    isResumable
+                    maxFileCount={5}
+                    onUploadSuccess={(data) =>
+                      setImages((prev) => [...prev, data.key || ""])
+                    }
+                    components={{
+                      Container({ children }) {
+                        return (
+                          <div className="w-full rounded-[12px] border border-[#a69859] p-3">
+                            {children}
                           </div>
-                        )
-                      )}
-                    </div>
-                  );
-                },
-              }}
-            />
-          </div>
+                        );
+                      },
+                      DropZone({ children, displayText, inDropZone, ...rest }) {
+                        return (
+                          <div className="flex flex-col gap-4 justify-center items-center w-full">
+                            <p>Drop files here</p>
+                            <Divider size="small" label="or" maxWidth="10rem" />
+                            {children}
+                          </div>
+                        );
+                      },
+                      FilePicker({ onClick }) {
+                        return (
+                          <Button
+                            onClick={onClick}
+                            className="text-md font-light rounded-sm"
+                          >
+                            Browse Files
+                          </Button>
+                        );
+                      },
+                      FileList({ files, onCancelUpload, onDeleteUpload }) {
+                        return (
+                          <div className="flex gap-4 w-full flex-wrap mt-3">
+                            {files.map(
+                              ({
+                                file,
+                                key,
+                                progress,
+                                id,
+                                status,
+                                uploadTask,
+                              }) => (
+                                <div
+                                  className="flex flex-col items-center justify-center relative w-20 h-20 object-cover"
+                                  key={key}
+                                >
+                                  {file && (
+                                    <Image
+                                      width={80}
+                                      height={80}
+                                      src={URL.createObjectURL(file)}
+                                      alt={key}
+                                      className="object-cover"
+                                    />
+                                  )}
+                                  {progress < 100 ? (
+                                    <Loader
+                                      position="absolute"
+                                      size="large"
+                                      percentage={progress}
+                                      isDeterminate
+                                      isPercentageTextHidden
+                                    />
+                                  ) : null}
+
+                                  <Button
+                                    className="opacity-70 hover:opacity-100 rounded-full absolute bg-transparent hover:bg-transparent transition-all duration-200"
+                                    onClick={() => {
+                                      if (status === "uploading") {
+                                        onCancelUpload({
+                                          id,
+                                          uploadTask: uploadTask!,
+                                        });
+                                      } else {
+                                        onDeleteUpload({ id });
+                                      }
+                                    }}
+                                  >
+                                    <TiDeleteOutline className="w-[26px] h-[26px] text-red-700" />
+                                  </Button>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        );
+                      },
+                    }}
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col md:flex-row items-center w-full justify-center gap-4">
           {!isOptimising ? (
             <Button
-              className="flex flex-row gap-2 items-center"
+              className="flex flex-row gap-2 items-center w-full md:w-fit"
               variant="outline"
               onClick={handleOptimise}
             >
-              <span>Optimize with AI</span>
+              <span>Enhance with AI</span>
               <IoSparkles className="text-primary" />
             </Button>
           ) : (
@@ -383,7 +433,12 @@ const AddDiaryDialogButton = () => {
               <TbReload className="w-5 h-5 text-primary animate-spin" />
             </Button>
           )}
-          <Button onClick={handleSave} className="w-full">
+          <Button
+            onClick={() => {
+              handleSave();
+            }}
+            className="w-full"
+          >
             Save
           </Button>
         </DialogFooter>
