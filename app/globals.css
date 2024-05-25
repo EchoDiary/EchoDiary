@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
   --background: 49 93% 96%;
   --foreground: 49 5% 10%;
@@ -23,6 +29,28 @@
   --input: 49 30% 50%;
   --ring: 49 100% 73.3%;
   --radius: 0.75rem;
+
+  --amplify-components-tabs-item-color: hsl(var(--foreground)) !important;
+  --amplify-components-tabs-item-active-color: #a69859 !important;
+  --amplify-components-tabs-item-hover-color: #a69859 !important;
+  --amplify-components-tabs-item-hover-active-color: #a69859e1 !important;
+  --amplify-components-tabs-item-active-border-color: #a69859 !important;
+  --amplify-components-button-primary-background-color: hsl(
+    var(--primary)
+  ) !important;
+  --amplify-components-button-primary-hover-background-color: hsl(
+    var(--primary) / 80%
+  ) !important;
+  --amplify-components-button-primary-color: hsl(var(--foreground)) !important;
+  --amplify-components-button-primary-hover-color: hsl(
+    var(--foreground)
+  ) !important;
+  --amplify-components-button-link-color: #a69859 !important;
+  --amplify-components-button-link-hover-color: #bfb37f !important;
+  --amplify-components-button-hover-background-color: #fdfd8ebb !important;
+  --amplify-components-button-active-background-color: #fdfd8ebb !important;
+  --amplify-components-button-hover-border-color: #a69859 !important;
+  --amplify-components-passwordfield-button-focus-border-color: #a69859 !important;
 }
 .dark {
   --background: 49 15% 6%;
@@ -52,6 +80,22 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
+}
+
+[data-amplify-authenticator] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  background-image: linear-gradient(
+    65.9deg,
+    rgb(253, 235, 113) 5.5%,
+    rgba(248, 215, 0, 0.582) 54.2%,
+    rgba(253, 234, 113, 0.63) 55.2%,
+    rgba(236, 248, 0, 0.859) 98.4%
+  );
 }
