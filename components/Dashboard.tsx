@@ -81,7 +81,7 @@ function Dashboard({ signOut }: { signOut: () => void }) {
       <Navbar signOut={signOut} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto p-4">
         <SummaryCard diaryCount={diaries.length || 0} />
-        {diaries && diaries.length < 0 ? (
+        {diaries && diaries.length > 0 ? (
           diaries.map((diary: any) => (
             <DiaryCard
               key={diary.id}
