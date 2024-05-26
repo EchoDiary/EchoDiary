@@ -7,6 +7,7 @@ import "@aws-amplify/ui-react/styles.css";
 import { Authenticator } from "@aws-amplify/ui-react";
 
 import Dashboard from "@/components/Dashboard";
+import Link from "next/link";
 
 Amplify.configure(outputs);
 
@@ -19,7 +20,9 @@ const components = {
   Header() {
     return (
       <div className="flex justify-center items-center pb-2">
-        <Image src="/images/logo.png" width={300} height={300} alt="logo" />
+        <Link href="/" className="cursor-pointer">
+          <Image src="/images/logo.png" width={300} height={300} alt="logo" />
+        </Link>
       </div>
     );
   },
