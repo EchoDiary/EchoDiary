@@ -29,7 +29,6 @@ function Dashboard({ signOut }: { signOut: () => void }) {
       if (errors) {
         console.error(errors);
       }
-      console.log(data);
       if (!nextToken) {
         setHasMore(false);
       } else {
@@ -77,7 +76,7 @@ function Dashboard({ signOut }: { signOut: () => void }) {
   }, []);
 
   return (
-    <main className="overflow-x-hidden">
+    <main>
       <Navbar signOut={signOut} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto p-4">
         <SummaryCard diaryCount={diaries.length || 0} />
