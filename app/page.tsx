@@ -58,8 +58,8 @@ export default function LandingPage() {
       </div>
       <div className="flex relative px-6 md:px-24 flex-col items-center md:items-start justify-center min-h-dvh py-10 h-full">
         <div className="w-full grid grid-cols-2">
-          <div className="flex flex-col gap-2 items-start">
-            <h1 className="text-4xl my-10 font-bold text-left">
+          <div className="flex flex-col gap-5 items-start justify-center">
+            <h1 className="text-4xl font-bold text-left">
               How it <span className="text-yellow-400">Works?</span>
             </h1>
             <p className="text-lg text-left max-w-2xl">
