@@ -5,14 +5,10 @@ import { AnimatedBeam } from "@/components/magicui/animated-beam";
 import React, { forwardRef, useRef } from "react";
 import {
   FaBolt,
-  FaBookJournalWhills,
-  FaFaceAngry,
-  FaFaceKiss,
   FaFaceSmile,
   FaImages,
   FaMicrophone,
   FaPen,
-  FaRegFaceSmile,
 } from "react-icons/fa6";
 import { BsJournalBookmarkFill } from "react-icons/bs";
 import Image from "next/image";
@@ -33,6 +29,8 @@ const Circle = forwardRef<
     </div>
   );
 });
+
+Circle.displayName = "Circle";
 
 export function FeaturesBeam() {
   const containerRef = useRef<HTMLDivElement>(null);

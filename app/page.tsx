@@ -66,11 +66,11 @@ export default function LandingPage() {
               EchoDiary allows you to effortlessly capture your thoughts through
               voice-activated entry, turning your spoken words into text in
               real-time. Enhance your entries with photos, videos, and voice
-              notes for a richer experience. The app's mood tracker analyzes
-              your voice to log your emotional state automatically, while AI
-              features provide intelligent summarization and optimization,
-              ensuring your diary is both comprehensive and beautifully
-              organized.
+              notes for a richer experience. The app&apos;s mood tracker
+              analyzes your voice to log your emotional state automatically,
+              while AI features provide intelligent summarization and
+              optimization, ensuring your diary is both comprehensive and
+              beautifully organized.
             </p>
           </div>
 
