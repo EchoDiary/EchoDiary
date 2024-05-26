@@ -10,14 +10,14 @@ specifies that any user authenticated via an API key can "create", "read",
 const schema = a.schema({
   Diary: a
     .model({
-      id: a.string(),
       content: a.string(),
       createdAt: a.string(),
       images: a.string().array(),
       mood: a.string(),
       type: a.string().default("diary"),
     })
-    .authorization((allow) => [allow.owner()]).secondaryIndexes(index => [index("type").queryField("listDiariesByDate").sortKeys(["createdAt"])]),
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes(index => [index("type").queryField("listDiariesByDate").sortKeys(["createdAt"])]),
   aiEnhanceText: a
     .query()
     .arguments({
@@ -69,6 +69,7 @@ cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
 import { type Schema } from '@/amplify/data/resource';
+import { auth } from '../auth/resource';
 
 const client = generateClient<Schema>() // use this Data client for CRUDL requests
 */
