@@ -290,7 +290,7 @@ const AddDiaryDialogButton = ({
           ) : (
             <>
               <div className="flex flex-row gap-4 items-start w-full">
-                <div className="w-24 h-24 aspect-square flex-shrink-0 mt-4 rounded-full animate-bounce hover:animate-none relative overflow-hidden group">
+                <div className="w-24 h-24 aspect-square flex-shrink-0 mt-4 rounded-full animate-bounce  relative overflow-hidden group">
                   <Image
                     src="/images/ai-avatar.png"
                     fill={true}
