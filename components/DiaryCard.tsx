@@ -50,7 +50,7 @@ function DiaryCard({
       <DialogTrigger asChild>
         <Card className="hover:scale-105 hover:shadow-lg transition-all duration-300 cursor-pointer">
           <CardHeader>
-            <CardTitle className="flex flex-row gap-2 items-center justify-between">
+            <CardTitle className="flex flex-row gap-2 items-start justify-between">
               <div className="flex flex-col">
                 <span className="text-lg">
                   {new Date(date).toLocaleDateString("en-US", {
@@ -156,7 +156,7 @@ function DiaryCard({
             )}
           </Carousel>
         )}
-        <div className="flex flex-row items-center justify-between -mt-5">
+        <div className="flex flex-row items-center justify-between -mt-2">
           {mood && <MoodTag mood={mood} />}
           <div className="flex gap-2 items-center">
             <AddDiaryDialogButton
@@ -177,7 +177,7 @@ function DiaryCard({
           </div>
         </div>
 
-        <p className="line-clamp-3">{content}</p>
+        <p>{content}</p>
       </DialogContent>
     </Dialog>
   );

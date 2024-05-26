@@ -30,8 +30,11 @@ function Footer() {
           />
         </Link>
       </div>
-      <div className="md:absolute md:right-0">
-        <Button className="flex gap-2 items-center bg-transparent text-muted-foreground">
+      <div className="md:absolute md:right-4">
+        <Button
+          variant="ghost"
+          className="flex gap-2 items-center text-muted-foreground"
+        >
           <FaGithub className="w-5 h-5 text-foreground" />
           Source code
         </Button>

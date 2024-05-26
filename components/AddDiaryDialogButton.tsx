@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "@aws-amplify/ui-react/styles.css";
 import useMediaStream from "use-media-stream";
 import { Visualizer } from "react-sound-visualizer";
@@ -76,6 +76,11 @@ const AddDiaryDialogButton = ({
   const [sentiment, setSentiment] = useState("");
   const [mood, setMood] = useState("");
   const [images, setImages] = useState([] as string[]);
+
+  useEffect(() => {
+    setImages(editImages || []);
+    setContent(editContent || "");
+  }, []);
 
   useState(() => {
     if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
@@ -171,9 +176,11 @@ const AddDiaryDialogButton = ({
               };
               await client.models.Diary.update(data as any)
                 .then(() => {
+                  setImages([]);
                   resolve("Diary entry saved successfully");
                 })
                 .catch((error) => {
+                  setImages([]);
                   reject("Error saving diary entry");
                 });
             } else {
@@ -183,9 +190,11 @@ const AddDiaryDialogButton = ({
                 mood: mood,
               })
                 .then(() => {
+                  setImages([]);
                   resolve("Diary entry saved successfully");
                 })
                 .catch((error) => {
+                  setImages([]);
                   reject("Error saving diary entry");
                 });
             }
@@ -350,120 +359,98 @@ const AddDiaryDialogButton = ({
             />
           </div>
           {!isEditing && (
-            <Accordion className="w-full" type="single" collapsible>
-              <AccordionItem className="w-full" value="item-1">
-                <AccordionTrigger>Attach Images</AccordionTrigger>
-                <AccordionContent className="w-full">
-                  <div className="grid w-full gap-3 my-2">
-                    <StorageManager
-                      acceptedFileTypes={["image/*"]}
-                      path={({ identityId }) => `diary-images/${identityId}/`}
-                      isResumable
-                      maxFileCount={10}
-                      onUploadSuccess={(data) =>
-                        setImages((prev) => [...prev, data.key || ""])
-                      }
-                      components={{
-                        Container({ children }) {
-                          return (
-                            <div className="w-full rounded-[12px] border border-[#a69859] p-3">
-                              {children}
-                            </div>
-                          );
-                        },
-                        DropZone({
-                          children,
-                          displayText,
-                          inDropZone,
-                          ...rest
-                        }) {
-                          return (
-                            <div className="flex flex-col gap-4 justify-center items-center w-full">
-                              <p>Drop files here</p>
-                              <Divider
-                                size="small"
-                                label="or"
-                                maxWidth="10rem"
-                              />
-                              {children}
-                            </div>
-                          );
-                        },
-                        FilePicker({ onClick }) {
-                          return (
-                            <Button
-                              onClick={onClick}
-                              className="text-md font-light rounded-sm"
+            <>
+              <Label className="w-full text-left">Add images</Label>
+              <StorageManager
+                acceptedFileTypes={["image/*"]}
+                path={({ identityId }) => `diary-images/${identityId}/`}
+                isResumable
+                maxFileCount={10}
+                onUploadSuccess={(data) =>
+                  setImages((prev) => [...prev, data.key || ""])
+                }
+                components={{
+                  Container({ children }) {
+                    return (
+                      <div className="w-full rounded-[12px] border border-[#a69859] p-3">
+                        {children}
+                      </div>
+                    );
+                  },
+                  DropZone({ children, displayText, inDropZone, ...rest }) {
+                    return (
+                      <div className="flex flex-col gap-4 justify-center items-center w-full">
+                        <p>Drop files here</p>
+                        <Divider size="small" label="or" maxWidth="10rem" />
+                        {children}
+                      </div>
+                    );
+                  },
+                  FilePicker({ onClick }) {
+                    return (
+                      <Button
+                        onClick={onClick}
+                        className="text-md font-light rounded-sm"
+                      >
+                        Browse Files
+                      </Button>
+                    );
+                  },
+                  FileList({ files, onCancelUpload, onDeleteUpload }) {
+                    return (
+                      <div className="flex gap-4 w-full flex-wrap mt-3">
+                        {files.map(
+                          ({ file, key, progress, id, status, uploadTask }) => (
+                            <div
+                              className="flex flex-col items-center justify-center relative w-20 h-20 object-cover"
+                              key={key}
                             >
-                              Browse Files
-                            </Button>
-                          );
-                        },
-                        FileList({ files, onCancelUpload, onDeleteUpload }) {
-                          return (
-                            <div className="flex gap-4 w-full flex-wrap mt-3">
-                              {files.map(
-                                ({
-                                  file,
-                                  key,
-                                  progress,
-                                  id,
-                                  status,
-                                  uploadTask,
-                                }) => (
-                                  <div
-                                    className="flex flex-col items-center justify-center relative w-20 h-20 object-cover"
-                                    key={key}
-                                  >
-                                    {file && (
-                                      <Image
-                                        width={80}
-                                        height={80}
-                                        src={URL.createObjectURL(file)}
-                                        alt={key}
-                                        className="object-cover"
-                                      />
-                                    )}
-                                    {progress < 100 ? (
-                                      <Loader
-                                        position="absolute"
-                                        size="large"
-                                        percentage={progress}
-                                        isDeterminate
-                                        isPercentageTextHidden
-                                      />
-                                    ) : null}
-
-                                    <Button
-                                      className="opacity-70 hover:opacity-100 rounded-full absolute bg-transparent hover:bg-transparent transition-all duration-200"
-                                      onClick={() => {
-                                        if (status === "uploading") {
-                                          onCancelUpload({
-                                            id,
-                                            uploadTask: uploadTask!,
-                                          });
-                                        } else {
-                                          onDeleteUpload({ id });
-                                        }
-                                      }}
-                                    >
-                                      <TiDeleteOutline className="w-[26px] h-[26px] text-red-700" />
-                                    </Button>
-                                  </div>
-                                )
+                              {file && (
+                                <div className="w-20 h-20 rounded-lg relative overflow-hidden">
+                                  <Image
+                                    src={URL.createObjectURL(file)}
+                                    alt={key}
+                                    fill={true}
+                                  />
+                                </div>
                               )}
+                              {progress < 100 ? (
+                                <Loader
+                                  position="absolute"
+                                  size="large"
+                                  percentage={progress}
+                                  isDeterminate
+                                  isPercentageTextHidden
+                                />
+                              ) : null}
+
+                              <Button
+                                className="opacity-70 hover:opacity-100 rounded-full absolute bg-transparent hover:bg-transparent transition-all duration-200"
+                                onClick={() => {
+                                  if (status === "uploading") {
+                                    onCancelUpload({
+                                      id,
+                                      uploadTask: uploadTask!,
+                                    });
+                                  } else {
+                                    onDeleteUpload({ id });
+                                  }
+                                }}
+                              >
+                                <TiDeleteOutline className="w-[26px] h-[26px] text-red-700" />
+                              </Button>
                             </div>
-                          );
-                        },
-                      }}
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                          )
+                        )}
+                      </div>
+                    );
+                  },
+                }}
+              />
+            </>
           )}
         </div>
-        <DialogFooter className="flex flex-col md:flex-row items-center w-full justify-center gap-4">
+        <DialogFooter className="flex flex-col md:flex-row items-center w-full pt-3 justify-center gap-4">
           {!isOptimising ? (
             <Button
               className="flex flex-row gap-2 items-center w-full md:w-fit"
