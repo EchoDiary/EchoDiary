@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { aiEnhanceText } from "../functions/ai-enhance-text/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -14,9 +15,29 @@ const schema = a.schema({
       createdAt: a.string(),
       images: a.string().array(),
       mood: a.string(),
+      type: a.string().default("diary"),
     })
-    .authorization((allow) => [allow.owner()]),
-});
+    .authorization((allow) => [allow.owner()]).secondaryIndexes(index => [index("type").queryField("listDiariesByDate").sortKeys(["createdAt"])]),
+  aiEnhanceText: a
+    .query()
+    .arguments({
+      text: a.string(),
+      mode: a.string(),
+    })
+    .returns(a.string())
+    .authorization(
+      (allow) => [allow.authenticated()]
+    )
+    .handler(
+      a.handler.function(aiEnhanceText)
+    ),
+  highlights: a.model({
+    content: a.string(),
+  }).authorization((allow) => [allow.owner()]),
+}
+
+
+);
 
 export type Schema = ClientSchema<typeof schema>;
 

@@ -23,6 +23,7 @@ import {
   CarouselPrevious,
 } from "./carousel";
 import { StorageImage } from "@aws-amplify/ui-react-storage";
+import { Loader2 } from "lucide-react";
 
 const client = generateClient<Schema>();
 
@@ -54,6 +55,24 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
     }
   };
 
+  function combineEntries(entries: any): string {
+    return entries
+      .map((entry: any) => {
+        // Date with time, and day of the week
+        const date = new Date(entry.createdAt).toLocaleString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        });
+        const mood = entry.mood ? ` Mood: ${entry.mood}` : ""; // include mood if it exists
+        return `${entry.content}${mood} Date: ${date}`;
+      })
+      .join("\n"); // join each entry with a newline
+  }
+
   async function generateHighlightContent() {
     if (diaryCount < 3 || highlightSummary != "") return;
     setLoading(true);
@@ -66,13 +85,21 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
     const images = diaries.flatMap((diary: any) => diary.images);
     console.log(images);
     setImages(images as any);
-    const generatedContent = await generateHighlights(diaries);
-    if (generatedContent.error) {
-      toast.error(generatedContent.error);
+
+    // AI Generate Highlights
+    const promptText = combineEntries(diaries);
+    console.log(promptText);
+    const { data: generatedContent, errors } =
+      await client.queries.aiEnhanceText({
+        text: promptText,
+        mode: "highlight",
+      });
+    if (errors) {
+      toast.error(errors[0].message);
       setLoading(false);
       return;
     }
-    setHighlightSummary(generatedContent.data as any);
+    setHighlightSummary(generatedContent as string);
     console.log(generatedContent);
     setLoading(false);
   }
@@ -88,8 +115,8 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
             colorFrom="#fff700"
             colorTo="#ff6200"
           />
-          <CardContent className="flex w-full h-full flex-col md:flex-row p-4 px-8 gap-2 items-center justify-center">
-            <div className="flex h-full  flex-col gap-2 justify-center md:basis-1/2">
+          <CardContent className="flex w-full h-full flex-col-reverse md:flex-row p-4 px-8 gap-2 items-center justify-center">
+            <div className="flex h-full flex-col gap-2 justify-center md:basis-1/2">
               <h2 className="text-2xl font-bold">
                 View your highlights of the Week
               </h2>
@@ -112,9 +139,9 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
           </CardContent>
         </Card>
       </DialogTrigger>
-      <DialogContent className="max-h-[80%] overflow-y-auto">
+      <DialogContent className="max-h-[80%] overflow-y-auto w-[90%] md:min-w-[70%] rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-2xl">
+          <DialogTitle className="text-2xl text-center">
             Your Highlights of the Week
           </DialogTitle>
         </DialogHeader>
@@ -125,9 +152,9 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
             </p>
           )}
           {loading ? (
-            <div className="flex flex-col gap-2 items-center justify-center">
+            <div className="flex flex-col w-full gap-2 items-start justify-center">
               <p>Generating your highlights...</p>
-              <div className="animate-spin h-8 w-8 border-2 border-border rounded-full"></div>
+              <Loader2 className="my-4 h-8 w-8 animate-spin" />
             </div>
           ) : (
             <>
@@ -166,7 +193,7 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
                 </Carousel>
               )}
               {highlightSummary && (
-                <p className="prose prose-lg prose-p:my-0 prose-p:leading-tight prose-ul:my-0 prose-ul:leading-tight prose-li:my-0 whitespace-pre-wrap">
+                <p className="prose prose-lg prose-yellow prose-p:my-0 prose-p:leading-tight prose-ul:my-0 prose-ul:leading-tight prose-li:my-0 whitespace-pre-wrap">
                   <Markdown>{highlightSummary}</Markdown>
                 </p>
               )}

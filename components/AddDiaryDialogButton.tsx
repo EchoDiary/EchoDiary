@@ -183,23 +183,19 @@ const AddDiaryDialogButton = () => {
       toast.error("Please enter some text to optimise");
       return;
     }
-
     setIsOptimising(true);
-
     try {
-      const response = await fetch("/api/optimise", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: content }),
+      const { data, errors } = await client.queries.aiEnhanceText({
+        text: content,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to optimize text");
+      if (data) {
+        console.log(data);
+        setContent(data);
       }
-      const data = await response.json();
-      setContent(data.choices[0].message.content);
+      if (errors) {
+        console.error("Error while optimizing text:", errors);
+        toast.error("Failed to optimize text. Please try again later.");
+      }
     } catch (error) {
       console.error("Error while optimizing text:", error);
       toast.error("Failed to optimize text. Please try again later.");

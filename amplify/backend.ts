@@ -3,12 +3,14 @@ import { defineBackend } from "@aws-amplify/backend";
 import { Stack } from "aws-cdk-lib";
 import { auth } from "./auth/resource.js";
 import { data } from "./data/resource.js";
-import { PolicyStatement } from "aws-cdk-lib/aws-iam";
+import { aiEnhanceText } from './functions/ai-enhance-text/resource';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 const backend = defineBackend({
   auth,
   data,
   storage,
+  aiEnhanceText
 });
 
 backend.auth.resources.authenticatedUserIamRole.addToPrincipalPolicy(
@@ -18,6 +20,16 @@ backend.auth.resources.authenticatedUserIamRole.addToPrincipalPolicy(
       "comprehend:DetectSentiment",
     ],
     resources: ["*"],
+  })
+);
+
+backend.aiEnhanceText.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ["bedrock:InvokeModel"],
+    resources: [
+      `arn:aws:bedrock:*::foundation-model/mistral.mistral-7b-instruct-v0:2`,
+    ],
   })
 );
 

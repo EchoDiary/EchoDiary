@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import InfiniteScroll from "@/components/InfiniteScroll";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
-import { Loader2 } from "lucide-react";
+import { FilePlus2, Loader2 } from "lucide-react";
 import SummaryCard from "./ui/SummaryCard";
 
 const client = generateClient<Schema>();
@@ -81,16 +81,30 @@ function Dashboard({ signOut }: { signOut: () => void }) {
       <Navbar signOut={signOut} />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto p-4">
         <SummaryCard diaryCount={diaries.length || 0} />
-        {diaries.map((diary: any) => (
-          <DiaryCard
-            key={diary.id}
-            diaryId={diary.id}
-            content={diary.content}
-            images={diary.images}
-            mood={diary.mood}
-            date={diary.createdAt}
-          />
-        ))}
+        {diaries && diaries.length < 0 ? (
+          diaries.map((diary: any) => (
+            <DiaryCard
+              key={diary.id}
+              diaryId={diary.id}
+              content={diary.content}
+              images={diary.images}
+              mood={diary.mood}
+              date={diary.createdAt}
+            />
+          ))
+        ) : (
+          <div className="min-h-52 flex flex-col gap-4 items-center justify-center col-span-full border-border border rounded-lg">
+            <FilePlus2 size={40} className="text-muted-foreground" />
+            <p className="text-center text-lg  font-semibold text-muted-foreground">
+              Get started by adding your first diary entry.
+            </p>
+            <p className="text-center text-sm max-w-lg text-muted-foreground">
+              Write your first diary entry by clicking on the New Journal button
+              on the top right corner along with our AI features.
+            </p>
+          </div>
+        )}
+
         <InfiniteScroll
           hasMore={hasMore}
           isLoading={loading}
