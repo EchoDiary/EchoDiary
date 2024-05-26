@@ -152,7 +152,7 @@ const SummaryCard = ({ diaryCount }: { diaryCount: number }) => {
             </p>
           )}
           {loading ? (
-            <div className="flex flex-col w-full gap-2 items-start justify-center">
+            <div className="flex flex-col w-full gap-2 items-center justify-center">
               <p>Generating your highlights...</p>
               <Loader2 className="my-4 h-8 w-8 animate-spin" />
             </div>
