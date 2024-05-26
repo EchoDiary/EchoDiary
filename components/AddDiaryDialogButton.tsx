@@ -232,7 +232,7 @@ const AddDiaryDialogButton = () => {
       <DialogContent className="h-full max-h-[90%] gap-0 overflow-auto">
         <DialogHeader className="space-y-0">
           <DialogTitle className="space-y-0">
-            <h1 className="text-2xl font-bold">Add a new diary entry</h1>
+            <span className="text-2xl font-bold">Add a new diary entry</span>
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-2 items-center">
