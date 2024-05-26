@@ -13,7 +13,6 @@ import { FaBolt } from "react-icons/fa6";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
 import toast from "react-hot-toast";
-import { generateHighlights } from "@/app/actions/generateHighlights.actions";
 import Markdown from "react-markdown";
 import {
   Carousel,
