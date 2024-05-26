@@ -6,6 +6,9 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary)) hsl(var(--background));
 }
 
 :root {
@@ -52,6 +55,21 @@
   --amplify-components-button-hover-border-color: #a69859 !important;
   --amplify-components-passwordfield-button-focus-border-color: #a69859 !important;
 }
+
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+  width: 0px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--primary));
+  border-radius: 4px;
+}
+
 .dark {
   --background: 49 15% 6%;
   --foreground: 49 5% 90%;
