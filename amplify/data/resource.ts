@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { aiEnhanceText } from "../functions/ai-enhance-text/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -10,16 +11,39 @@ const schema = a.schema({
   Diary: a
     .model({
       content: a.string(),
+      createdAt: a.string(),
       images: a.string().array(),
-      date: a.datetime(),
       mood: a.string(),
+      type: a.string().default("diary"),
     })
-    .authorization((allow) => [allow.owner()]),
-});
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes(index => [index("type").queryField("listDiariesByDate").sortKeys(["createdAt"])]),
+  aiEnhanceText: a
+    .query()
+    .arguments({
+      text: a.string(),
+      mode: a.string(),
+    })
+    .returns(a.string())
+    .authorization(
+      (allow) => [allow.authenticated()]
+    )
+    .handler(
+      a.handler.function(aiEnhanceText)
+    ),
+  highlights: a.model({
+    content: a.string(),
+  }).authorization((allow) => [allow.owner()]),
+}
+
+
+);
 
 export type Schema = ClientSchema<typeof schema>;
 
+
 export const data = defineData({
+  name: "mainData",
   schema,
   authorizationModes: {
     defaultAuthorizationMode: "userPool",
@@ -27,6 +51,7 @@ export const data = defineData({
       expiresInDays: 30,
     },
   },
+
 });
 
 /*== STEP 2 ===============================================================
@@ -43,6 +68,8 @@ cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
 "use client"
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "@/amplify/data/resource";
+import { type Schema } from '@/amplify/data/resource';
+import { auth } from '../auth/resource';
 
 const client = generateClient<Schema>() // use this Data client for CRUDL requests
 */
