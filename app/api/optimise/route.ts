@@ -3,7 +3,6 @@ import { NextApiResponse } from "next";
 export async function POST(req: Request, res: NextApiResponse) {
   try {
     const { text } = await req.json();
-
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -25,8 +24,6 @@ export async function POST(req: Request, res: NextApiResponse) {
               content: text,
             },
           ],
-
-
         }),
       }
     );
