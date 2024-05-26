@@ -36,7 +36,7 @@ export default function LandingPage() {
             <Link href="/dashboard">Get Started</Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link href="/about">Learn More</Link>
+            <Link href="#why-echodiary">Learn More</Link>
           </Button>
         </div>
         <Image
@@ -47,7 +47,10 @@ export default function LandingPage() {
           alt="landing"
         />
       </div>
-      <div className="flex relative px-6 md:px-24 flex-col items-center md:items-start justify-center min-h-dvh py-10 h-full">
+      <div
+        id="why-echodiary"
+        className="flex relative px-6 md:px-24 flex-col items-center md:items-start justify-center min-h-dvh py-10 h-full"
+      >
         <h1 className="text-4xl my-10 font-bold text-center">
           Why <span className="text-yellow-400">Echo Diary?</span>
         </h1>
