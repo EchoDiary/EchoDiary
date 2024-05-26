@@ -98,7 +98,7 @@
     @apply border-border;
   }
   body {
-    @apply text-foreground;
+    @apply text-foreground min-h-screen flex flex-col justify-between;
   }
 }
 
