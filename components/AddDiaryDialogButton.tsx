@@ -279,7 +279,7 @@ const AddDiaryDialogButton = ({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="h-full max-h-[90%] max-w-screen gap-0 overflow-auto overflow-x-hidden">
+      <DialogContent className="h-full max-h-[90%] gap-0 overflow-auto overflow-x-hidden">
         <DialogHeader className="space-y-0">
           <DialogTitle className="space-y-0">
             <span className="text-2xl font-bold text-left">
@@ -320,7 +320,7 @@ const AddDiaryDialogButton = ({
                     >
                       {({ canvasRef }) => (
                         <>
-                          <canvas ref={canvasRef} height={50} />
+                          <canvas ref={canvasRef} className="w-full h-24" />
                         </>
                       )}
                     </Visualizer>
