@@ -279,10 +279,10 @@ const AddDiaryDialogButton = ({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="h-full max-h-[90%] gap-0 overflow-auto">
+      <DialogContent className="h-full max-h-[90%] max-w-screen gap-0 overflow-auto overflow-x-hidden">
         <DialogHeader className="space-y-0">
           <DialogTitle className="space-y-0">
-            <span className="text-2xl font-bold">
+            <span className="text-2xl font-bold text-left">
               {isEditing ? "Edit the" : "Add a new"} diary entry
             </span>
           </DialogTitle>
@@ -307,7 +307,7 @@ const AddDiaryDialogButton = ({
                   />
                 </div>
 
-                <div className="flex flex-col justify-center h-full w-fit">
+                <div className="flex flex-col justify-center h-full w-full">
                   <h2 className="text-2xl font-semibold">
                     {isActive ? "Listening..." : "What's on your mind?"}
                   </h2>

@@ -44,7 +44,7 @@ export function FeaturesBeam() {
 
   return (
     <div
-      className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg  p-10"
+      className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-lg p-2  md:p-10"
       ref={containerRef}
     >
       <div className="flex h-full w-full flex-row items-stretch justify-between gap-4">
@@ -102,7 +102,7 @@ export function FeaturesBeam() {
         <div className="flex flex-col justify-center">
           <div
             ref={div7Ref}
-            className="flex flex-col gap-2 z-10 hover:bg-background shadow-xl bg-primary border-primary border-4 aspect-square rounded-full p-6 items-center justify-center transition-all 200ms ease-in"
+            className="hidden md:flex flex-col gap-2 z-10 hover:bg-background shadow-xl bg-primary border-primary border-4 aspect-square rounded-full p-6 items-center justify-center transition-all 200ms ease-in"
           >
             <BsJournalBookmarkFill size={50} />
             <p className="text-base font-semibold text-center text-accent-foreground">
@@ -140,6 +140,7 @@ export function FeaturesBeam() {
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={div6Ref}
+        className="hidden md:block"
         toRef={div7Ref}
       />
     </div>
